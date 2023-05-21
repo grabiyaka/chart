@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Персонажи из Библии</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+	<script src="tocca.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cousine:wght@700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="style.css" />
+
+    <link rel="icon" href="img/icon.jpg" sizes="64x64" type="image/x-icon" />
+
+    <script>
+      function post(url, data, callback) {
+        let xhr = new XMLHttpRequest();
+
+        xhr.open("POST", url);
+
+        xhr.send(data);
+
+        xhr.onload = () => {
+          callback(xhr.response);
+        };
+      }
+
+      Array.prototype.findObjectByValue = function (key, searched) {
+        let newArr = this.filter((e) => e[key] == searched);
+
+        if (newArr.length) {
+          return newArr[0];
+        }
+      };
+    </script>
+  </head>
+
+  <body class="body">	
+    <div id="app">
+	
+      <div class="settings">
+        <div>
+          <button @click="add = 1, del = 0" v-if="add == 0" class="btn">Добавить</button>
+
+          <button @click="del = 1" v-if="del == 0 && add == 0" class="btn">
+            Удалить что-то
+          </button>
+
+          <button @click="del = 0" v-if="del == 1" class="btn">
+            Не удалать что-то
+          </button>
+        </div>
+
+        <h3 class="vers" v-if="add == 0">V:1.3 beta</h3>
+
+        <div v-if="add == 1">
+          <div class="set">
+            <h2 class="text_change"> поменять на: </h2>
+            <button @click="eventPers = 1" v-if="eventPers == 0" class="btn2">Событие</button>
+            <button @click="eventPers = 0" v-if="eventPers == 1" class="btn2">Персонаж</button>
+          </div>
+
+          <form
+            action=""
+            @submit.prevent="sendEvent($event)"
+            v-if="eventPers == 1"
+          >
+            <input type="text" name="name_event" placeholder="Имя" required />
+
+            <input
+              type="number"
+              name="start"
+              placeholder="Дата начала (до Н.Э)"
+              required
+            />
+
+            <input
+              type="number"
+              name="end"
+              placeholder="Сколько продлилось"
+              required
+            />
+
+            <input type="text" name="text" placeholder="Описание" />
+
+            <select name="color" id="" required>
+              <option value="" selected disabled>Выберите цвет</option>
+
+              <option value="red" name="red">Красный</option>
+
+              <option value="blue" name="blue">Синий</option>
+
+              <option value="green" name="blue">Зеленый</option>
+
+              <option value="pink" name="blue">Розовый</option>
+
+              <option value="purple" name="blue">Фиолетовый</option>
+
+              <option value="yellow" name="blue">Желтый</option>
+
+              <option value="brown" name="blue">Коричневый</option>
+
+              <option value="black" name="blue">Черный</option>
+
+              <option value="white" name="blue">Белый</option>
+
+              <option value="orange" name="blue">Оранжевый</option>
+            </select>
+
+            <select name="opacity" id="" required>
+              <option value="" disabled selected>Выберите прозрачность</option>
+
+              <option value=".1">min 1</option>
+
+              <option value=".2">2</option>
+
+              <option value=".3">3</option>
+
+              <option value=".4">4</option>
+
+              <option value=".5">5</option>
+
+              <option value=".6">6</option>
+
+              <option value=".7">7</option>
+
+              <option value=".8">8</option>
+
+              <option value=".9">9</option>
+
+              <option value="1">MAX 10</option>
+            </select>
+
+            <button class="btn2">Добавить событие</button>
+          </form>
+
+          <form action="" @submit.prevent="send($event)" v-if="eventPers == 0">
+            <input type="text" name="name" placeholder="Имя" required />
+
+            <input
+              type="text"
+              name="born"
+              type="number"
+              placeholder="Дата рождения (до Н.Э)"
+              required
+            />
+
+            <input
+              type="text"
+              name="age"
+              type="number"
+              placeholder="Сколько прожил"
+              required
+            />
+
+            <input type="text" name="parents" placeholder="Родители" />
+
+            <input type="text" name="description" placeholder="Описание" />
+
+            <input type="text" name="sons" placeholder="Дети" />
+
+            <button class="btn2">Добавить персонажа</button>
+          </form>
+
+          <button @click="add = 0" class="btn2">Отмена</button>
+        </div>
+      </div>
+      <div>
+        <button v-if="rightPersons > 0" class="svp1" @click="svp()">
+          {{ rightPersons }} >
+        </button>
+      </div>
+      <button class="svp2" @click="svp2()" v-if="personsOffset != 0">
+        <
+          {{personsOffset}}
+      </button>
+      <div class="flex">
+        
+        <div class="scale">
+          <div v-for="x in year" @click="" style="height: 10px">
+            {{ x % 5 == 0 ? `${x}0` : '' }}
+          </div>
+        </div>
+
+        <div
+          v-for="(man, index) in sp"
+          @click="getIn(man.id, index)"
+          class="pers"
+          v-bind:style="{
+                top: Math.abs(man.born - 4026) +4 + 'px',
+				left: index*40 + 30 + 'px',
+                height: man.age + 'px',
+            }"
+        >
+          <h2 class="text">{{ man.name }}</h2>
+
+          <br />
+		
+		<transition name="slide">
+          <button
+            class="close"
+            @click.stop="deletePers(man.id, index)"
+            v-if="del == 1"
+            alt="Удалить"
+          >
+            &times;
+          </button>
+		</transition>
+		  
+        </div>
+
+        <div
+          v-for="(event, index) in apiEvent"
+          class="event"
+          @click="getInEvent(event.id, index)"
+          v-bind:style="{
+          top: Math.abs(event.start - 4026) - 10 + 'px',
+          height: event.end + 'px',
+          background: event.color,
+          opacity: event.opacity
+        }"
+        >
+          <div class="text_event">{{ event.name_event }}</div>
+
+          <button
+            @click.stop="deleteEvent(event.id, index)"
+            v-if="del == 1"
+            v-bind:style="{
+            opacity: '1' 
+          }"
+          >
+            del
+          </button>
+        </div>
+      </div>
+
+      <div id="popup" class="popup">
+        <a href="#header" class="popup__area"></a>
+
+        <div class="popup__body">
+          <div class="popup__content">
+            <a href="#header" class="popup__close">X</a>
+
+            <div class="popup__title">
+              <div>
+                <button @click="ed = 1" v-if="ed == 0">Редактировать</button>
+
+                <button @click="ed = 0" v-if="ed == 1">
+                  Отменить редактирование
+                </button>
+                <br />
+              </div>
+
+            </div>
+
+            <div class="popup__text" v-if="edd == 1">
+              <button
+				  @click="deletePers(pop.id)"
+				  alt="Удалить"
+				  v-if="ed == 1"
+              >
+              Удалить персонажа
+              </button>
+              <h1>{{ pop.name }}</h1>
+              <input
+                v-if="ed == 1"
+                type="text"
+                name="name"
+                :value="pop.name"
+                @keyup="updatePers(pop.id, $event)"
+              />
+              <h4 v-if="ed == 0">Родился в {{ pop.born }} году до Н.Э</h4>
+
+              <h4 v-if="ed == 1">Родился в</h4>
+              <input
+                v-if="ed == 1"
+                type="text"
+                name="born"
+                :value="pop.born"
+                @keyup="updatePers(pop.id, $event)"
+              />
+
+              <h4 v-if="ed == 0">Прожил {{ pop.age }} лет</h4>
+              <h4 v-if="ed == 1">Прожил</h4>
+              <input
+                v-if="ed == 1"
+                type="text"
+                name="age"
+                :value="pop.age"
+                @keyup="updatePers(pop.id, $event)"
+              />
+
+              <h4 v-if="ed == 0">Дети: {{ pop.sons }}</h4>
+
+              <h4 v-if="ed == 1">Дети:</h4>
+              <input
+                v-if="ed == 1"
+                type="text"
+                name="sons"
+                :value="pop.sons"
+                @keyup="updatePers(pop.id, $event)"
+              />
+
+              <h4 v-if="ed == 0">Родители: {{ pop.parents }}</h4>
+
+              <h4 v-if="ed == 1">Родители:</h4>
+              <input
+                v-if="ed == 1"
+                type="text"
+                name="parents"
+                :value="pop.parents"
+                @keyup="updatePers(pop.id, $event)"
+              />
+
+              <h4 v-if="ed == 0">
+                Описание: {{ pop.description }} {{ pop.text }}
+              </h4>
+
+              <h4 v-if="ed == 1">Описание:</h4>
+              <input
+                v-if="ed == 1"
+                type="text"
+                name="description"
+                :value="pop.description"
+                @keyup="updatePers(pop.id, $event)"
+              />
+
+              <!-- <h4>Сколько было лет <select name="name" id="name">
+
+                <option disabled selected>Выберите персонажа</option>
+
+                <option @click="namePers()" v-for="person in api">{{ person.name }}</option>
+
+              </select> Когда родился {{ pop.name }} </h4>
+
+              {{ name }} -->
+            </div>
+
+            <div v-if="edd == 2">
+              <h1>{{ pop.name_event }}</h1>
+              <input
+                v-if="ed == 1"
+                type="text"
+                name="name_event"
+                :value="pop.name_event"
+                @keyup="updateEvent(pop.id, $event)"
+              />
+              <h4 v-if="ed == 0">Началось в {{ pop.start }} году до Н.Э</h4>
+
+              <h4 v-if="ed == 1">Началось в</h4>
+              <input
+                v-if="ed == 1"
+                type="text"
+                name="start"
+                :value="pop.start"
+                @keyup="updateEvent(pop.id, $event)"
+              />
+
+              <h4 v-if="ed == 0">
+                Закончилось через {{ pop.age }} {{ pop.end }} лет
+              </h4>
+              <h4 v-if="ed == 1">Закончилось через</h4>
+              <input
+                v-if="ed == 1"
+                type="text"
+                name="end"
+                :value="pop.end"
+                @keyup="updateEvent(pop.id, $event)"
+              />
+
+              <h4 v-if="ed == 0">Описание: {{ pop.text }}</h4>
+
+              <h4 v-if="ed == 1">Описание:</h4>
+              <input
+                v-if="ed == 1"
+                type="text"
+                name="text"
+                :value="pop.text"
+                @keyup="updateEvent(pop.id, $event)"
+              />
+
+              <!-- <h4 v-if="ed == 1">Цвет:</h4>
+
+              <select name="color" id="" >
+
+                <option value="" selected disabled>Выберите цвет</option>
+
+                <option value="red" name="red">красный</option>
+
+                <option value="blue" name="blue">синий</option>
+
+              </select>
+
+              <input v-if="ed == 1" type="text">
+
+
+
+              <h4 v-if="ed == 1">Прозрачность</h4>
+
+              
+
+              <input v-if="ed == 1" type="text" name="opacity"
+
+              :value="pop.opacity" @keyup="updateEvent(pop.id, $event)">
+
+              В разработке -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="vue.js"></script>
+  </body>
+</html>
